@@ -25,7 +25,9 @@ export default function LobbyScreen({...props}) {
     <View style={styles.root}>
       <SafeAreaView />
       <Text style={styles.roomId}>{params.roomId}</Text>
-      <HLobby roomId={params.roomId} onJoinedRoom={gotoRoomScreen} />
+      <View style={{height: '50%'}}>
+        <HLobby roomId={params.roomId} onJoinedRoom={gotoRoomScreen} />
+      </View>
     </View>
   );
 }

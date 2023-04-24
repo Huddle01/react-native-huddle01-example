@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import {
   View,
   StyleSheet,
-  useWindowDimensions,
   TouchableOpacity,
   Image,
   ImageSourcePropType,
@@ -11,7 +10,6 @@ import {
 import {MaterialIndicator} from 'react-native-indicators';
 import {RTCView} from 'react-native-webrtc';
 import {
-  useMeetingMachine,
   useEventListener,
   useAudio,
   useVideo,
@@ -22,8 +20,6 @@ import Avatar from './Avatar';
 
 interface HLobbyProps {
   roomId: string;
-  width?: number;
-  height?: number;
   showControls: boolean;
   showJoinButton: boolean;
   backgroundColor: string;
@@ -38,8 +34,6 @@ interface HLobbyProps {
 }
 
 const HLobby = (props: HLobbyProps) => {
-  const {width: screenWidth} = useWindowDimensions();
-
   const {fetchAudioStream} = useAudio();
   const {fetchVideoStream, stream: camStream, switchCamera} = useVideo();
   const {joinRoom} = useRoom();
@@ -102,9 +96,6 @@ const HLobby = (props: HLobbyProps) => {
     joinRoom();
   };
 
-  const cameraWidth = props.width ?? screenWidth - 40;
-  const cameraHeight = props.height ?? (cameraWidth * 3) / 5;
-
   const renderControlItem = (
     onIcon: ImageSourcePropType,
     offIcon: ImageSourcePropType,
@@ -157,8 +148,7 @@ const HLobby = (props: HLobbyProps) => {
           ...styles.cameraContainer,
           backgroundColor: props.backgroundColor,
         }}>
-        <View
-          style={[styles.camera, {width: cameraWidth, height: cameraHeight}]}>
+        <View style={styles.camera}>
           {isCameraOn && (
             <RTCView
               style={{height: '100%', width: '100%'}}
@@ -228,7 +218,9 @@ HLobby.defaultProps = {
 export default HLobby;
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    flex: 1,
+  },
   cameraIcon: {
     width: 24,
     height: 24,
@@ -240,11 +232,12 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   cameraContainer: {
-    width: '100%',
+    flex: 1,
     borderRadius: 12,
     overflow: 'hidden',
   },
   camera: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',

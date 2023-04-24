@@ -35,10 +35,10 @@ interface HHomeProps {
   projectId: string;
   apiKey: string;
   logo?: ImageSourcePropType;
-  createMeetingSection: SectionProps;
-  joinMeetingSection: SectionProps;
-  onJoinnedLobby: (roomId: string) => void;
-  onJoinLobbyFailed: (error: string) => void;
+  createMeetingSection?: SectionProps;
+  joinMeetingSection?: SectionProps;
+  onJoinnedLobby?: (roomId: string) => void;
+  onJoinLobbyFailed?: (error: string) => void;
 }
 
 const HHome = (props: HHomeProps) => {
@@ -304,8 +304,7 @@ const HHome = (props: HHomeProps) => {
   );
 };
 
-HHome.defaultProps = {
-};
+HHome.defaultProps = {};
 
 export default HHome;
 
