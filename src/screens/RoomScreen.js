@@ -17,15 +17,18 @@ export default function RoomScreen({...props}) {
   return (
     <View style={styles.root}>
       <SafeAreaView />
+      <View style={styles.container}>
+        <HRoom
+          roomId={params.roomId}
+          isCameraOn={params.isCameraOn}
+          isMicOn={params.isMicOn}
+          onLeaveRoom={() => {
+            navigation.replace('Login');
+          }}
+        />
+      </View>
+
       <Text style={styles.roomId}>{params.roomId}</Text>
-      <HRoom
-        roomId={params.roomId}
-        isCameraOn={params.isCameraOn}
-        isMicOn={params.isMicOn}
-        onLeaveRoom={() => {
-          navigation.replace('Login');
-        }}
-      />
       <SafeAreaView />
     </View>
   );
@@ -35,8 +38,11 @@ const styles = StyleSheet.create({
   root: {
     backgroundColor: 'grey',
     flex: 1,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+  },
+  container: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
   roomId: {
     fontSize: 18,

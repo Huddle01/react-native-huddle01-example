@@ -9,12 +9,8 @@ import {
 } from 'react-native';
 import {MaterialIndicator} from 'react-native-indicators';
 import {RTCView} from 'react-native-webrtc';
-import {
-  useEventListener,
-  useAudio,
-  useVideo,
-  useRoom,
-} from '@huddle01/react-native/hooks';
+import {useAudio, useVideo, useRoom} from '@huddle01/react/hooks';
+import {useEventListener} from '@huddle01/react';
 import Images from './Images';
 import Avatar from './Avatar';
 
