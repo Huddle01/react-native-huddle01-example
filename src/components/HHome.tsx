@@ -255,6 +255,7 @@ const HHome = (props: HHomeProps) => {
                 }
                 onChangeText={text => setInputRoomId(text)}
                 autoCapitalize="none"
+                autoCorrect={false}
               />
             </View>
 
