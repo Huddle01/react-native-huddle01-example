@@ -52,23 +52,27 @@ const HRoom = (props: HRoomProps) => {
   }, [state]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (isCameraOn && camStream) {
-        produceVideo(camStream);
-      } else if (!isCameraOn) {
-        stopProducingVideo();
+    if (isCameraOn) {
+      if (camStream) {
+        setTimeout(() => {
+          produceVideo(camStream);
+        }, 1000);
       }
-    }, 500);
+    } else {
+      stopProducingVideo();
+    }
   }, [isCameraOn, camStream]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (isMicOn && micStream) {
-        produceAudio(micStream);
-      } else if (!isMicOn) {
-        stopProducingAudio();
+    if (isMicOn) {
+      if (micStream) {
+        setTimeout(() => {
+          produceAudio(micStream);
+        }, 1000);
       }
-    }, 500);
+    } else {
+      stopProducingAudio();
+    }
   }, [isMicOn, micStream]);
 
   const onCamera = () => {
