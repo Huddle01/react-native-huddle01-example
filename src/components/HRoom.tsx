@@ -58,7 +58,7 @@ const HRoom = (props: HRoomProps) => {
       } else if (!isCameraOn) {
         stopProducingVideo();
       }
-    }, 50);
+    }, 500);
   }, [isCameraOn, camStream]);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ const HRoom = (props: HRoomProps) => {
       } else if (!isMicOn) {
         stopProducingAudio();
       }
-    }, 50);
+    }, 500);
   }, [isMicOn, micStream]);
 
   const onCamera = () => {

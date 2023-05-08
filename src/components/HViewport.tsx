@@ -14,6 +14,7 @@ interface HViewportProps {
   hideInfo: boolean;
   style?: ViewStyle;
   resizeMode: 'contain' | 'cover';
+  zOrder: number;
 }
 
 const HViewport = (props: HViewportProps) => {
@@ -62,7 +63,7 @@ const HViewport = (props: HViewportProps) => {
           streamURL={stream?.toURL() ?? ''}
           style={{backgroundColor: 'transparent', ...viewSize, flex: 1}}
           objectFit={props.resizeMode}
-          zOrder={20}
+          zOrder={props.zOrder}
         />
       </View>
     );
@@ -131,6 +132,7 @@ HViewport.defaultProps = {
   nameColor: '#E2E8F0',
   hideInfo: false,
   resizeMode: 'contain',
+  zOrder: 20,
 };
 
 export default HViewport;

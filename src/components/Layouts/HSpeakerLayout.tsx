@@ -27,6 +27,7 @@ const HSpeakerLayout = (props: HSpeakerLayoutProps) => {
           nameColor={props.peerNameColor}
           style={{borderRadius: 0}}
           hideInfo={true}
+          zOrder={0}
         />
       </View>
     );
@@ -42,6 +43,7 @@ const HSpeakerLayout = (props: HSpeakerLayoutProps) => {
           backgroundColor={props.viewportBgColor}
           nameColor={props.peerNameColor}
           hideInfo={true}
+          zOrder={1}
         />
         <View style={{...styles.btnInSmallView, top: 3, left: 3}}>
           <TouchableOpacity onPress={props.onGrid}>
