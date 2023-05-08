@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   SafeAreaView,
-  FlatList,
   ImageSourcePropType,
   TouchableOpacity,
   Image,
@@ -14,9 +13,10 @@ import {
   useVideo,
   usePeers,
   useRoom,
-} from '@huddle01/react-native/hooks';
-import HViewport from './HViewport';
+} from '@huddle01/react/hooks';
 import Images from './Images';
+import HGridLayout from './Layouts/HGridLayout';
+import HSpeakerLayout from './Layouts/HSpeakerLayout';
 
 interface HRoomProps {
   roomId: string;
@@ -30,13 +30,12 @@ interface HRoomProps {
   onMicOnOff?: (isMicOn: boolean) => void;
 }
 
+type HLayout = 'grid' | 'speaker' | 'auto';
+
 const HRoom = (props: HRoomProps) => {
   const [isMicOn, setMicOn] = useState(props.isMicOn);
   const [isCameraOn, setCameraOn] = useState(props.isCameraOn);
-
-  const [viewListSize, setViewListSize] = useState({width: 0, height: 0});
-  const [largeViewItemHeight, setLargeViewItemHeight] = useState(100);
-  const [viewItemHeight, setViewItemHeight] = useState(100);
+  const [layout, setLayout] = useState<HLayout>('auto');
 
   const {state} = useMeetingMachine();
   const {stream: micStream, produceAudio, stopProducingAudio} = useAudio();
@@ -72,15 +71,6 @@ const HRoom = (props: HRoomProps) => {
     }, 50);
   }, [isMicOn, micStream]);
 
-  const calculateViewHeights = (containerSize: any) => {
-    const itemWidth = ((containerSize.width ?? 4) - 4) / 2;
-    const itemHeight = itemWidth;
-    const containerHeight = (containerSize.height ?? 60) - 60;
-
-    setViewItemHeight(itemHeight);
-    setLargeViewItemHeight(containerHeight / 3);
-  };
-
   const onCamera = () => {
     const newValue = !isCameraOn;
     setCameraOn(newValue);
@@ -101,28 +91,10 @@ const HRoom = (props: HRoomProps) => {
     leaveRoom();
   };
 
-  const peerIds = Object.keys(peers);
   const me = {
     peerId: state.context.peerId,
     camStream: isCameraOn ? camStream : undefined,
     micStream: isMicOn ? micStream : undefined,
-  };
-  const peerArray = [me, ...peerIds.map(peerId => peers[peerId])];
-
-  const renderViewItem = (peer: object) => {
-    const itemHeight =
-      peerArray.length > 3 ? viewItemHeight : largeViewItemHeight;
-    const margin = peerArray.length > 3 ? 2 : 4;
-
-    return (
-      <View style={{flex: 0.5, margin: margin, height: itemHeight}}>
-        <HViewport
-          peer={peer}
-          backgroundColor={props.viewportBgColor}
-          nameColor={props.peerNameColor}
-        />
-      </View>
-    );
   };
 
   const renderBottomButton = (
@@ -136,54 +108,60 @@ const HRoom = (props: HRoomProps) => {
     );
   };
 
+  const renderBottomTool = () => {
+    if (!props.hideToolbar) {
+      return (
+        <View>
+          <View style={styles.bottomContainer}>
+            <View style={styles.bottomInnerShadow} />
+            <View style={styles.bottomOutterShadow} />
+            {renderBottomButton(
+              isCameraOn ? Images.ic_camera_on : Images.ic_camera_off,
+              onCamera,
+            )}
+            {renderBottomButton(
+              isMicOn ? Images.ic_mic_on : Images.ic_mic_off,
+              onMic,
+            )}
+            {renderBottomButton(Images.ic_disconnect, onDisconnect)}
+          </View>
+          <SafeAreaView />
+        </View>
+      );
+    } else {
+      return <></>;
+    }
+  };
+
+  let currentLayout = layout;
+  if (currentLayout === 'auto') {
+    if (Object.keys(peers).length < 2) {
+      currentLayout = 'speaker';
+    } else {
+      currentLayout = 'grid';
+    }
+  }
   return (
     <View style={styles.container}>
-      <View
-        style={styles.viewportContainer}
-        onLayout={event => {
-          const {width, height} = event.nativeEvent.layout;
-          const size = {width: width, height: height};
-          if (
-            viewListSize.width !== size.width ||
-            viewListSize.height !== size.height
-          ) {
-            setViewListSize(size);
-            calculateViewHeights(size);
-          }
-        }}>
-        <FlatList
-          style={styles.viewItemList}
-          contentContainerStyle={styles.viewItemListContainer}
-          bounces={false}
-          data={peerArray}
-          renderItem={({item}) => renderViewItem(item)}
-          key={peerArray.length > 3 ? '#small' : '#large'}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={peerArray.length > 3 ? 2 : 1}
-          columnWrapperStyle={
-            peerArray.length > 3
-              ? {flex: 0.5, margin: 2, justifyContent: 'center'}
-              : undefined
-          }
+      {currentLayout === 'grid' && (
+        <HGridLayout
+          peers={peers}
+          viewportBgColor={props.viewportBgColor}
+          peerNameColor={props.peerNameColor}
+          me={me}
+          renderBottomTool={renderBottomTool}
         />
-      </View>
-
-      {!props.hideToolbar && (
-        <View style={styles.bottomContainer}>
-          <View style={styles.bottomInnerShadow} />
-          <View style={styles.bottomOutterShadow} />
-          {renderBottomButton(
-            isCameraOn ? Images.ic_camera_on : Images.ic_camera_off,
-            onCamera,
-          )}
-          {renderBottomButton(
-            isMicOn ? Images.ic_mic_on : Images.ic_mic_off,
-            onMic,
-          )}
-          {renderBottomButton(Images.ic_disconnect, onDisconnect)}
-        </View>
       )}
-      <SafeAreaView />
+      {currentLayout === 'speaker' && (
+        <HSpeakerLayout
+          peers={peers}
+          viewportBgColor={props.viewportBgColor}
+          peerNameColor={props.peerNameColor}
+          me={me}
+          renderBottomTool={renderBottomTool}
+          onGrid={() => setLayout('grid')}
+        />
+      )}
     </View>
   );
 };
@@ -201,13 +179,6 @@ export default HRoom;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  viewportContainer: {
-    flex: 1,
-    marginHorizontal: 20,
-    marginVertical: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   viewItemList: {
     width: '100%',

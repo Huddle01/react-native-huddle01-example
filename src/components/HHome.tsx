@@ -9,11 +9,8 @@ import {
   TextInput,
 } from 'react-native';
 import {MaterialIndicator} from 'react-native-indicators';
-import {
-  useHuddle01,
-  useLobby,
-  useEventListener,
-} from '@huddle01/react-native/hooks';
+import {useLobby} from '@huddle01/react/hooks';
+import {useHuddle01, useEventListener} from '@huddle01/react';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
 
@@ -258,6 +255,7 @@ const HHome = (props: HHomeProps) => {
                 }
                 onChangeText={text => setInputRoomId(text)}
                 autoCapitalize="none"
+                autoCorrect={false}
               />
             </View>
 

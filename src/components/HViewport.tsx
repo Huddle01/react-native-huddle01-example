@@ -11,6 +11,9 @@ interface HViewportProps {
   reaction?: string;
   backgroundColor: string;
   nameColor: string;
+  hideInfo: boolean;
+  style?: ViewStyle;
+  resizeMode: 'contain' | 'cover';
 }
 
 const HViewport = (props: HViewportProps) => {
@@ -22,7 +25,7 @@ const HViewport = (props: HViewportProps) => {
   const isCameraOn = peer.cam || peer.camStream;
   const isMicOn = peer.mic || peer.micStream;
 
-  const avatarSize = viewSize.height * 0.4;
+  const avatarSize = Math.min(viewSize.width, viewSize.height) * 0.4;
   const avatarStyle: ViewStyle = {
     width: avatarSize,
     height: avatarSize,
@@ -58,7 +61,7 @@ const HViewport = (props: HViewportProps) => {
         <RTCView
           streamURL={stream?.toURL() ?? ''}
           style={{backgroundColor: 'transparent', ...viewSize, flex: 1}}
-          objectFit={'contain'}
+          objectFit={props.resizeMode}
           zOrder={20}
         />
       </View>
@@ -72,7 +75,11 @@ const HViewport = (props: HViewportProps) => {
   return (
     <View
       {...props}
-      style={{...styles.container, backgroundColor: props.backgroundColor}}
+      style={{
+        ...styles.container,
+        backgroundColor: props.backgroundColor,
+        ...props.style,
+      }}
       onLayout={event => {
         const {width, height} = event.nativeEvent.layout;
         const size = {width: width, height: height};
@@ -89,21 +96,24 @@ const HViewport = (props: HViewportProps) => {
           )}
         </View>
       )}
-      <View style={styles.bottomLeftSectionContainer}>
-        <View style={styles.nameContainer}>
-          <Text style={{...styles.name, color: props.nameColor}}>{peer.peerId}</Text>
-        </View>
 
-        {icons.length > 0 && (
-          <View style={styles.iconContainer}>
-            {icons.map(icon => (
-              <Image style={styles.icon} source={icon} />
-            ))}
+      {!props.hideInfo && (
+        <View style={styles.bottomLeftSectionContainer}>
+          <View style={styles.nameContainer}>
+            <Text style={{...styles.name, color: props.nameColor}}>{peer.peerId}</Text>
           </View>
-        )}
 
-        <View style={{flex: 1}} />
-      </View>
+          {icons.length > 0 && (
+            <View style={styles.iconContainer}>
+              {icons.map(icon => (
+                <Image style={styles.icon} source={icon} />
+              ))}
+            </View>
+          )}
+
+          <View style={{flex: 1}} />
+        </View>
+      )}
       {isCameraOn && props.reaction && (
         <Text style={[styles.action, styles.actionOnTopLeft]}>
           {props.reaction}
@@ -119,6 +129,8 @@ HViewport.defaultProps = {
   isSmall: true,
   backgroundColor: '#181A20',
   nameColor: '#E2E8F0',
+  hideInfo: false,
+  resizeMode: 'contain',
 };
 
 export default HViewport;

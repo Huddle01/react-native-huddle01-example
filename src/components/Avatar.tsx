@@ -76,7 +76,7 @@ const Avatar = (props: AvatarProps) => {
           <Image
             style={styles.image}
             defaultSource={Images.ic_default_avatar}
-            source={props.source}
+            source={props.source ?? Images.ic_default_avatar}
           />
         )}
       </View>

@@ -8,6 +8,8 @@ const Images = {
   ic_mic_off: require('./assets/ic_mic_off/ic_mic_off.png'),
   ic_default_avatar: require('./assets/ic_default_avatar/ic_default_avatar.png'),
   ic_mirror: require('./assets/ic_mirror/ic_mirror.png'),
+  ic_switch_camera: require('./assets/ic_switch_camera/ic_switch_camera.png'),
+  ic_grid: require('./assets/ic_grid/ic_grid.png'),
 };
 
 export default Images;
