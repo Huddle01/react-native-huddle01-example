@@ -1,17 +1,19 @@
 import React, {useEffect} from 'react';
 import {useNavigation} from '@react-navigation/core';
 import {View, StyleSheet, SafeAreaView, Text} from 'react-native';
-import InCallManager from 'react-native-incall-manager';
 import HRoom from '../components/HRoom';
+import CallManager from '../utils/CallManager';
 
 export default function RoomScreen({...props}) {
   const navigation = useNavigation();
   const params = props.route.params;
 
   useEffect(() => {
-    InCallManager.start({media: 'audio'});
-    InCallManager.setForceSpeakerphoneOn(true);
-    InCallManager.setSpeakerphoneOn(true);
+    CallManager.start();
+
+    return () => {
+      CallManager.stop();
+    };
   }, []);
 
   return (
