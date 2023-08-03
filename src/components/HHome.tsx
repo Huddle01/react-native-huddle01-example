@@ -9,8 +9,11 @@ import {
   TextInput,
 } from 'react-native';
 import {MaterialIndicator} from 'react-native-indicators';
-import {useLobby} from '@huddle01/react/hooks';
-import {useHuddle01, useEventListener} from '@huddle01/react';
+import {
+  useLobby,
+  useHuddle01,
+  useEventListener,
+} from '@huddle01/react-native/hooks';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
 
@@ -45,7 +48,7 @@ const HHome = (props: HHomeProps) => {
   const [isJoiningRoom, setJoiningRoom] = useState(false);
 
   const {initialize} = useHuddle01();
-  const {joinLobby} = useLobby();
+  const {joinLobby, isLoading, isLobbyJoined} = useLobby();
 
   const createMeetingSectionProps: SectionProps = {
     title: 'Meeting Space',
@@ -80,15 +83,16 @@ const HHome = (props: HHomeProps) => {
     initialize(props.projectId);
   }, []);
 
-  useEventListener('lobby:joined', () => {
-    console.log('useEventListener:- JoinedLobby');
-    setCreatingRoom(false);
-    setJoiningRoom(false);
+  useEffect(() => {
+    if (!isLoading && isLobbyJoined) {
+      setCreatingRoom(false);
+      setJoiningRoom(false);
 
-    if (props.onJoinnedLobby) {
-      props.onJoinnedLobby(roomId);
+      if (props.onJoinnedLobby) {
+        props.onJoinnedLobby(roomId);
+      }
     }
-  });
+  }, [props, roomId, isLoading, isLobbyJoined]);
 
   useEventListener('lobby:failed', () => {
     console.log('useEventListener:- JoinLobbyFailed');

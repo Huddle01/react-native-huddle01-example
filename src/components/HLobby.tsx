@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 import {MaterialIndicator} from 'react-native-indicators';
 import {RTCView} from 'react-native-webrtc';
-import {useAudio, useVideo, useRoom} from '@huddle01/react/hooks';
-import {useEventListener} from '@huddle01/react';
+import {useAudio, useVideo, useRoom} from '@huddle01/react-native/hooks';
+import {useEventListener} from '@huddle01/react-native/hooks';
 import Images from './Images';
 import Avatar from './Avatar';
 
@@ -32,7 +32,7 @@ interface HLobbyProps {
 const HLobby = (props: HLobbyProps) => {
   const {fetchAudioStream} = useAudio();
   const {fetchVideoStream, stream: camStream, switchCamera} = useVideo();
-  const {joinRoom} = useRoom();
+  const {joinRoom, isLoading, isRoomJoined} = useRoom();
 
   const [isCameraOn, setCameraOn] = useState(props.isCameraOn);
   const [isMicOn, setMicOn] = useState(props.isMicOn);
@@ -43,29 +43,29 @@ const HLobby = (props: HLobbyProps) => {
     fetchAudioStream();
   }, []);
 
-  useEventListener('room:joined', () => {
-    console.log('useEventListener:- Room Joined');
+  useEffect(() => {
+    setLoading(isLoading);
 
-    setLoading(false);
-
-    if (props.onJoinedRoom) {
-      props.onJoinedRoom(isCameraOn, isMicOn);
+    if (!isLoading && isRoomJoined) {
+      if (props.onJoinedRoom) {
+        props.onJoinedRoom(isCameraOn, isMicOn);
+      }
     }
-  });
+  }, [isCameraOn, isLoading, isMicOn, isRoomJoined, props]);
 
-  useEventListener('lobby:cam-on', () => {
+  useEventListener('app:cam-on', () => {
     console.log('useEventListener:- Lobby Camera On');
   });
 
-  useEventListener('lobby:cam-off', () => {
+  useEventListener('app:cam-off', () => {
     console.log('useEventListener:- Lobby Camera Off');
   });
 
-  useEventListener('lobby:mic-on', () => {
+  useEventListener('app:mic-on', () => {
     console.log('useEventListener:- Lobby Mic On');
   });
 
-  useEventListener('lobby:mic-off', () => {
+  useEventListener('app:mic-off', () => {
     console.log('useEventListener:- Lobby Mic Off');
   });
 

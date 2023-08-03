@@ -7,13 +7,15 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
+import {useAcl} from '@huddle01/react/hooks';
+import {useAppUtils} from '@huddle01/react/app-utils';
 import {
-  useMeetingMachine,
+  useHuddle01,
   useAudio,
   useVideo,
   usePeers,
   useRoom,
-} from '@huddle01/react/hooks';
+} from '@huddle01/react-native/hooks';
 import Images from './Images';
 import HGridLayout from './Layouts/HGridLayout';
 import HSpeakerLayout from './Layouts/HSpeakerLayout';
@@ -35,28 +37,42 @@ type HLayout = 'grid' | 'speaker' | 'auto';
 const HRoom = (props: HRoomProps) => {
   const [isMicOn, setMicOn] = useState(props.isMicOn);
   const [isCameraOn, setCameraOn] = useState(props.isCameraOn);
+  // const [camStream, setCameraStream] = useState(props.camStream);
+  // const [micStream, setMicStream] = useState(props.micStream);
   const [layout, setLayout] = useState<HLayout>('auto');
 
-  const {state} = useMeetingMachine();
-  const {stream: micStream, produceAudio, stopProducingAudio} = useAudio();
-  const {stream: camStream, produceVideo, stopProducingVideo} = useVideo();
-  const {leaveRoom} = useRoom();
+  const {me, roomState} = useHuddle01();
+  const {
+    fetchAudioStream,
+    produceAudio,
+    stopProducingAudio,
+    stream: micStream,
+  } = useAudio();
+  const {
+    fetchVideoStream,
+    produceVideo,
+    stopProducingVideo,
+    stream: camStream,
+  } = useVideo();
+  const {roomId, leaveRoom} = useRoom();
   const {peers} = usePeers();
+  const {changePeerRole, changeRoomControls, kickPeer} = useAcl();
+  const {setDisplayName, sendData} = useAppUtils();
 
   useEffect(() => {
-    if (state.value['Initialized'] === 'NotJoined') {
-      if (props.onLeaveRoom) {
-        props.onLeaveRoom();
-      }
-    }
-  }, [state]);
+    console.log({me, roomState});
+  }, [me, roomState]);
+
+  useEffect(() => {
+    console.log('Room Id: ', roomId);
+  }, [roomId]);
 
   useEffect(() => {
     if (isCameraOn) {
       if (camStream) {
-        setTimeout(() => {
-          produceVideo(camStream);
-        }, 1000);
+        produceVideo(camStream);
+      } else {
+        fetchVideoStream();
       }
     } else {
       stopProducingVideo();
@@ -66,9 +82,9 @@ const HRoom = (props: HRoomProps) => {
   useEffect(() => {
     if (isMicOn) {
       if (micStream) {
-        setTimeout(() => {
-          produceAudio(micStream);
-        }, 1000);
+        produceAudio(micStream);
+      } else {
+        fetchAudioStream();
       }
     } else {
       stopProducingAudio();
@@ -91,12 +107,26 @@ const HRoom = (props: HRoomProps) => {
     }
   };
 
+  const onSetDisplayName = () => {
+    setDisplayName('Tester');
+  };
+
+  const onChangeRole = () => {
+    changePeerRole('<Peer-Id>', 'coHost');
+  };
+
+  const onSendMessage = () => {
+    sendData('*', {
+      message: 'Hello World',
+    });
+  };
+
   const onDisconnect = () => {
     leaveRoom();
   };
 
-  const me = {
-    peerId: state.context.peerId,
+  const mePeer = {
+    // peerId: state.context.peerId,
     camStream: isCameraOn ? camStream : undefined,
     micStream: isMicOn ? micStream : undefined,
   };
@@ -152,7 +182,7 @@ const HRoom = (props: HRoomProps) => {
           peers={peers}
           viewportBgColor={props.viewportBgColor}
           peerNameColor={props.peerNameColor}
-          me={me}
+          me={mePeer}
           renderBottomTool={renderBottomTool}
         />
       )}
@@ -161,7 +191,7 @@ const HRoom = (props: HRoomProps) => {
           peers={peers}
           viewportBgColor={props.viewportBgColor}
           peerNameColor={props.peerNameColor}
-          me={me}
+          me={mePeer}
           renderBottomTool={renderBottomTool}
           onGrid={() => setLayout('grid')}
         />
